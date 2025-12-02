@@ -16,8 +16,6 @@ states/Start/position = Vector2(266.6667, 130.22223)
 
 [node name="Mira" type="CharacterBody2D"]
 script = ExtResource("1_5u7e5")
-SPEED = 500.0
-JUMP_VELOCITY = -650.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 7)
@@ -27,7 +25,7 @@ shape = SubResource("CapsuleShape2D_81bi5")
 scale = Vector2(2, 2)
 sprite_frames = ExtResource("1_81bi5")
 animation = &"mira_idle"
-frame_progress = 0.316279
+frame_progress = 0.8368074
 speed_scale = 0.7
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -36,3 +34,31 @@ speed_scale = 0.5
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
 tree_root = SubResource("AnimationNodeStateMachine_6cgd2")
+
+[node name="CoyoteTimer" type="Timer" parent="."]
+wait_time = 0.3
+one_shot = true
+
+[node name="WallCheck" type="Node2D" parent="."]
+position = Vector2(1, 0)
+
+[node name="raycastR" type="RayCast2D" parent="WallCheck"]
+target_position = Vector2(40, 0)
+
+[node name="raycastL" type="RayCast2D" parent="WallCheck"]
+position = Vector2(-1, 0)
+target_position = Vector2(-40, 0)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2(2, 0)
+process_callback = 0
+limit_left = -10000520
+limit_top = -600
+limit_smoothed = true
+position_smoothing_enabled = true
+position_smoothing_speed = 3.0
+drag_vertical_offset = -1.0
+drag_left_margin = 0.76
+drag_right_margin = 0.76
+editor_draw_limits = true
+editor_draw_drag_margin = true
