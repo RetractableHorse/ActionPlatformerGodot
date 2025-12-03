@@ -16,6 +16,7 @@ states/Start/position = Vector2(266.6667, 130.22223)
 
 [node name="Mira" type="CharacterBody2D"]
 script = ExtResource("1_5u7e5")
+JUMP_VELOCITY = 450.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 7)
@@ -36,8 +37,6 @@ speed_scale = 0.5
 tree_root = SubResource("AnimationNodeStateMachine_6cgd2")
 
 [node name="CoyoteTimer" type="Timer" parent="."]
-wait_time = 0.3
-one_shot = true
 
 [node name="WallCheck" type="Node2D" parent="."]
 position = Vector2(1, 0)
@@ -56,9 +55,12 @@ limit_left = -10000520
 limit_top = -600
 limit_smoothed = true
 position_smoothing_enabled = true
-position_smoothing_speed = 3.0
 drag_vertical_offset = -1.0
 drag_left_margin = 0.76
 drag_right_margin = 0.76
 editor_draw_limits = true
 editor_draw_drag_margin = true
+
+[node name="Timer" type="Timer" parent="."]
+
+[connection signal="timeout" from="CoyoteTimer" to="." method="_on_coyote_timer_timeout"]

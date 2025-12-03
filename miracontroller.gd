@@ -3,6 +3,7 @@ extends CharacterBody2D
 
 @export var SPEED = 300.0
 @export var JUMP_VELOCITY = -400.0
+@export var FALL_VELOCITY = 650.0
 @onready var COYOTE_TIME = $CoyoteTimer
 var was_on_floor = false
 var direction := Input.get_axis("Left", "Right")
@@ -18,6 +19,10 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("Jump") and (is_on_floor() or !COYOTE_TIME.is_stopped()):
 		velocity.y = JUMP_VELOCITY
 		COYOTE_TIME.stop()
+		
+	if not is_on_floor():
+		COYOTE_TIME.is_stopped()
+		velocity.y += FALL_VELOCITY * delta
 		#$Timer.start(.2: float = 1):
 		
 
@@ -50,8 +55,8 @@ func flipSprite():
 	
 	if direction:
 		$AnimatedSprite2D.flip_h
-	
-	
-	
-	
+
+
+func _on_coyote_timer_timeout() -> void:
+	pass
 	
