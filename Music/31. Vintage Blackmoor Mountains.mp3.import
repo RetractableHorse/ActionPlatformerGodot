@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c488kh4fsmsiy"
+path="res://.godot/imported/31. Vintage Blackmoor Mountains.mp3-b1f16e606cf39677f0dd51b8e0501f75.mp3str"
+
+[deps]
+
+source_file="res://Music/31. Vintage Blackmoor Mountains.mp3"
+dest_files=["res://.godot/imported/31. Vintage Blackmoor Mountains.mp3-b1f16e606cf39677f0dd51b8e0501f75.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
