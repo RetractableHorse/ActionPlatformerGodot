@@ -15,7 +15,7 @@ universal_fade/patterns_directory="res://addons/UniversalFade/Patterns"
 [application]
 
 config/name="PlatformerGraybox"
-run/main_scene="res://Scenes/Playground.tscn"
+run/main_scene="res://Scenes/Stages/Playground.tscn"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -23,7 +23,13 @@ config/icon="res://icon.svg"
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/per_pixel_transparency/allowed=true
 window/canvas_textures/default_texture_filter=0
+
+[editor]
+
+movie_writer/movie_file="C:/Users/Robert/Documents/platformer-graybox/MovieFiles/movietest1.avi"
 
 [input]
 
@@ -81,3 +87,5 @@ Deny={
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
+2d/snap/snap_2d_transforms_to_pixel=true
+2d/snap/snap_2d_vertices_to_pixel=true

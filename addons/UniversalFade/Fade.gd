@@ -1,6 +1,6 @@
 ## Performs screen transition effect.
 extends CanvasLayer
-#class_name Fade
+class_name Fade
 
 ## The project setting that determines pattern directory.
 const PROJECT_SETTING = "addons/universal_fade/patterns_directory"
