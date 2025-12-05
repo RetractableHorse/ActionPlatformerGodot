@@ -10,7 +10,6 @@ var CAN_JUMP = true
 var was_on_floor = false
 var direction = Input.get_axis("Left", "Right")
 var is_touching = false
-var is_dead = false
 
 
 

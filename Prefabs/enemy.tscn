@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://cmtv6is23qqo5"]
+
+[ext_resource type="Script" uid="uid://cqw6uuebdc5o2" path="res://testenemy.gd" id="1_lgw76"]
+[ext_resource type="Texture2D" uid="uid://bj4jx7oed4yit" path="res://Sprites/PlayerSprites/SynthSprites/Idle/Synth1.png" id="2_lgw76"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_30yes"]
+size = Vector2(20, 42)
+
+[node name="Enemy" type="Area2D"]
+script = ExtResource("1_lgw76")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(3, -22)
+shape = SubResource("RectangleShape2D_30yes")
+
+[node name="Synth1" type="Sprite2D" parent="CollisionShape2D"]
+position = Vector2(1, -10)
+texture = ExtResource("2_lgw76")

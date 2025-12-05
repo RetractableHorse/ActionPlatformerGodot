@@ -1,11 +1,11 @@
 [gd_resource type="SpriteFrames" load_steps=80 format=3 uid="uid://cyt4knwr0lof7"]
 
 [ext_resource type="Texture2D" uid="uid://dumm4y2eymkcl" path="res://Sprites/PlayerSprites/BlankBody/Hurt-Damaged/Player Hurt 48x48.png" id="1_w14b5"]
-[ext_resource type="Texture2D" uid="uid://cr1mhrqb0ioo1" path="res://Sprites/PlayerSprites/BlankBody/air spin/player air spin 48x48.png" id="2_v1keq"]
-[ext_resource type="Texture2D" uid="uid://cygu2tdkanctk" path="res://Sprites/PlayerSprites/BlankBody/death/Player Death 64x64.png" id="3_5cq7c"]
+[ext_resource type="Texture2D" uid="uid://cr1mhrqb0ioo1" path="res://Sprites/PlayerSprites/BlankBody/Air Spin/player air spin 48x48.png" id="2_v1keq"]
+[ext_resource type="Texture2D" uid="uid://cygu2tdkanctk" path="res://Sprites/PlayerSprites/BlankBody/Death/Player Death 64x64.png" id="3_5cq7c"]
 [ext_resource type="Texture2D" uid="uid://revyv0kv07kc" path="res://Sprites/PlayerSprites/BlankBody/Idle/Player Idle 48x48.png" id="4_a6t8d"]
 [ext_resource type="Texture2D" uid="uid://ha3x1fikwk8" path="res://Sprites/PlayerSprites/BlankBody/Jump/player jump 48x48.png" id="5_vh0m0"]
-[ext_resource type="Texture2D" uid="uid://cugf7st2tqnys" path="res://Sprites/PlayerSprites/BlankBody/land/player land 48x48.png" id="6_q4vly"]
+[ext_resource type="Texture2D" uid="uid://cugf7st2tqnys" path="res://Sprites/PlayerSprites/BlankBody/Land/player land 48x48.png" id="6_q4vly"]
 [ext_resource type="Texture2D" uid="uid://cwoyjmomfspbd" path="res://Sprites/PlayerSprites/BlankBody/Jump/player jump left 48x48-sheet.png" id="7_t2wk8"]
 [ext_resource type="Texture2D" uid="uid://dsyplokh2ht7a" path="res://Sprites/PlayerSprites/BlankBody/Jump/player new jump 48x48.png" id="8_f5m5x"]
 [ext_resource type="Texture2D" uid="uid://bg75hgk80pguw" path="res://Sprites/PlayerSprites/BlankBody/Run/player run 48x48.png" id="9_kkeo4"]
@@ -322,7 +322,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_nkldc")
 }],
-"loop": true,
+"loop": false,
 "name": &"airspin",
 "speed": 12.0
 }, {

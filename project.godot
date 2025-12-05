@@ -31,6 +31,21 @@ window/canvas_textures/default_texture_filter=0
 
 movie_writer/movie_file="C:/Users/Robert/Documents/platformer-graybox/MovieFiles/movietest1.avi"
 
+[file_customization]
+
+folder_colors={
+"res://Animations/": "blue",
+"res://Godot-Universal-Fade-f091514bba652880f81c5bc8809e0ee4498988ea/": "gray",
+"res://HUDElements/": "yellow",
+"res://MovieFiles/": "green",
+"res://Music/": "teal",
+"res://Prefabs/": "purple",
+"res://Scenes/": "red",
+"res://Scripts/": "red",
+"res://Sprites/": "orange",
+"res://addons/": "red"
+}
+
 [input]
 
 Jump={

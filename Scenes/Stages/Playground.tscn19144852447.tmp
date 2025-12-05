@@ -121,6 +121,11 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_gqow2")
 fill_mode = 0
 show_percentage = true
 
+[node name="Area2D" parent="HUD" instance=ExtResource("2_ny5gv")]
+position = Vector2(686, 453)
+damage = 5
+knockback_force = 300
+
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource("2_5lo5w")
 
@@ -249,6 +254,3 @@ texture = ExtResource("11_pnefv")
 z_index = 20
 position = Vector2(-25, 662)
 scale = Vector2(29.84, 1)
-
-[node name="Enemy" parent="." instance=ExtResource("2_ny5gv")]
-position = Vector2(784, 401)

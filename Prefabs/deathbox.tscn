@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://bgppsdfvmv8tg"]
+
+[ext_resource type="Script" uid="uid://ccq0tqdy3n7w8" path="res://Scripts/DeathBox.gd" id="1_hp6to"]
+
+[sub_resource type="SegmentShape2D" id="SegmentShape2D_hp6to"]
+b = Vector2(-151.55472, -0.64045715)
+
+[node name="Deathbox" type="Node2D"]
+
+[node name="Deathbox" type="Area2D" parent="."]
+scale = Vector2(0.99999994, 0.99999994)
+script = ExtResource("1_hp6to")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Deathbox"]
+position = Vector2(604.00006, 0)
+scale = Vector2(7.489045, 6.2455397)
+shape = SubResource("SegmentShape2D_hp6to")

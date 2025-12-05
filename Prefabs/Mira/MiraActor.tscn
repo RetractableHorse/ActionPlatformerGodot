@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://x3wbwvhh7jhe"]
 
-[ext_resource type="Script" uid="uid://cwrd787opfiml" path="res://Prefabs/Mira/miracontroller.gd" id="1_5u7e5"]
+[ext_resource type="Script" uid="uid://cwrd787opfiml" path="res://Prefabs/BaseBody/basecontroller.gd" id="1_5u7e5"]
 [ext_resource type="SpriteFrames" uid="uid://b52xos382hxcd" path="res://Animations/Mira/mira.tres" id="1_81bi5"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_81bi5"]
