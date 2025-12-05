@@ -39,6 +39,7 @@ folder_colors={
 "res://HUDElements/": "yellow",
 "res://MovieFiles/": "green",
 "res://Music/": "teal",
+"res://Music/Sounds/": "pink",
 "res://Prefabs/": "purple",
 "res://Scenes/": "red",
 "res://Scripts/": "red",

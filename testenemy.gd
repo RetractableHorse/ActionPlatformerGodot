@@ -24,7 +24,7 @@ func _physics_process(delta):
 	if player == null:
 		player = get_tree().get_first_node_in_group("player")
 		
-	print("found player node from first node in group...")
+	#print("found player node from first node in group...")
 
 func _on_hop_timer_timeout():
 	if player != null and can_hop:

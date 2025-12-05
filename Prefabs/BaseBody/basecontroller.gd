@@ -125,5 +125,5 @@ func take_damage(amount):
 	
 func _on_coyote_timer_timeout() -> void:
 	
-	
+
 	pass
