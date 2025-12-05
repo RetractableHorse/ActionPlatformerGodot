@@ -1,3 +1,5 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+MovieFiles/Movietest1.mp4
+MovieFiles/movietest1.avi
