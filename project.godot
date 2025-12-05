@@ -46,6 +46,11 @@ folder_colors={
 "res://addons/": "red"
 }
 
+[global_group]
+
+enemy_s=""
+player="player group"
+
 [input]
 
 Jump={

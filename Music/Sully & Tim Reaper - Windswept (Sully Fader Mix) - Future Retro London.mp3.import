@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cds34rnigmj0u"
+path="res://.godot/imported/Sully & Tim Reaper - Windswept (Sully Fader Mix) - Future Retro London.mp3-76f562fa90a224bc7e46c7312655e943.mp3str"
+
+[deps]
+
+source_file="res://Music/Sully & Tim Reaper - Windswept (Sully Fader Mix) - Future Retro London.mp3"
+dest_files=["res://.godot/imported/Sully & Tim Reaper - Windswept (Sully Fader Mix) - Future Retro London.mp3-76f562fa90a224bc7e46c7312655e943.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
