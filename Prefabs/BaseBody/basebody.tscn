@@ -24,7 +24,7 @@ shape = SubResource("RectangleShape2D_ersgh")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 scale = Vector2(2, 2)
 sprite_frames = ExtResource("2_ersgh")
-animation = &"jumpbase"
+animation = &"wallsideright"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="AnimatedSprite2D"]
 
