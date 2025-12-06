@@ -11,18 +11,15 @@ extends CharacterBody2D
 @export var JUMP_VELOCITY = -400.0
 @export var JUMP_CUT_MULTIPLIER = 0.5
 @export var FALL_GRAVITY_MULTIPLIER = 3.5
-@export var FAST_FALL_MULTIPLIER = 2.0  # Additional multiplier when holding down
+@export var FAST_FALL_MULTIPLIER = 2.0
+@export var current_speed = velocity
 @export var death_sound_path: String = "res://Sounds/dontwannadie.wav"
 
-# - Damage parameters
+# === DAMAGE PARAMETERS ===
 @export_group("Damage Parameters")
 @export var invincibility_duration: float = 1.0
 @export var damage_knockback: Vector2 = Vector2(200, -150)
 @export var damage_flash_duration: float = 0.1
-@export var dash_jump_buffer: float = 0.15  # Time window to jump after dash ends
-
-# Then continue with your ability unlock system...
-@export_group("Unlockable Abilities")
 
 # === ABILITY UNLOCK SYSTEM ===
 @export_group("Unlockable Abilities")
@@ -47,6 +44,12 @@ extends CharacterBody2D
 @export var ground_dash_duration: float = 0.3
 @export var dash_cooldown: float = 0.5
 @export var dash_momentum_preservation: float = 0.85
+@export var dash_jump_buffer: float = 0.15
+
+@export_group("Dash Visual Effects")
+@export var dash_ghost_enabled: bool = true
+@export var dash_ghost_interval: float = 0.05
+@export var dash_ghost_fade_duration: float = 0.3
 
 # === ANIMATION SETTINGS ===
 @export_group("Animations - Basic Movement")
@@ -76,27 +79,28 @@ extends CharacterBody2D
 @export var anim_melee_3: String = "idle"
 @export var anim_rail_grind: String = "runningbasic"
 
+# === INPUT BUFFER SYSTEM ===
+@export_group("Input Buffer")
+@export var jump_buffer_time: float = 0.15
+@export var dash_buffer_time: float = 0.15
+@export var attack_buffer_time: float = 0.15
+
 # === NODE REFERENCES ===
 @onready var COYOTE_TIME = $CoyoteTimer
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var animation_player = $AnimatedSprite2D/AnimationPlayer
-@onready var health_bar = $"../HUD/Health"
+@onready var health_bar = null
 
-# === INPUT BUFFER SYSTEM ===
-@export_group("Input Buffer")
-@export var jump_buffer_time: float = 0.15  # How long jump input is remembered
-@export var dash_buffer_time: float = 0.15  # How long dash input is remembered
-@export var attack_buffer_time: float = 0.15  # For future melee attacks
+# === STATE VARIABLES ===
+var was_on_floor: bool = false
+var airspin_played: bool = false
+var is_dead: bool = false
+var current_health: float = 0.0  # Track health locally
 
 # Input buffer timers
 var jump_buffer_timer: float = 0.0
 var dash_buffer_timer: float = 0.0
 var attack_buffer_timer: float = 0.0
-
-# === STATE VARIABLES ===
-var was_on_floor = false
-var airspin_played = false
-var is_dead = false
 
 # Wall jump state
 var is_on_wall_left: bool = false
@@ -109,27 +113,19 @@ var is_dashing: bool = false
 var dash_timer: float = 0.0
 var dash_cooldown_timer: float = 0.0
 var dash_direction: float = 0.0
-var dash_jump_buffer_timer: float = 0.0  # ADD THIS - MMZ3 dash-jump buffer
+var dash_jump_buffer_timer: float = 0.0
+var dash_ghost_timer: float = 0.0
 
-# ADD THESE - Damage state variables
-var is_invincible = false
-var is_taking_damage = false
+# Damage state
+var is_invincible: bool = false
+var is_taking_damage: bool = false
 var damage_timer: float = 0.0
 
 func _ready():
 	add_to_group("player")
 	
-	# Safe health bar initialization with error checking
-	if health_bar:
-		print("Health bar node found: ", health_bar)
-		print("Health bar type: ", health_bar.get_class())
-		if health_bar.has_method("update_health"):
-			health_bar.update_health(HEALTH, HEALTH)
-		else:
-			print("ERROR: health_bar doesn't have update_health method!")
-	else:
-		print("ERROR: health_bar is null!")
-	
+	#if health_bar and health_bar.has_method("update_health"):
+		#health_bar.update_health(HEALTH, HEALTH)
 
 func _physics_process(delta: float) -> void:
 	var input_direction := Input.get_axis("Left", "Right")
@@ -146,7 +142,7 @@ func _physics_process(delta: float) -> void:
 		if damage_timer <= 0:
 			is_taking_damage = false
 	
-	# INPUT BUFFER TIMERS
+	# Input buffer timers
 	if jump_buffer_timer > 0:
 		jump_buffer_timer -= delta
 	if dash_buffer_timer > 0:
@@ -154,119 +150,124 @@ func _physics_process(delta: float) -> void:
 	if attack_buffer_timer > 0:
 		attack_buffer_timer -= delta
 	
-	# CAPTURE INPUT BUFFERS
+	# Capture input buffers
 	if Input.is_action_just_pressed("Jump"):
 		jump_buffer_timer = jump_buffer_time
 	if Input.is_action_just_pressed("Dash"):
 		dash_buffer_timer = dash_buffer_time
-	# Future: if Input.is_action_just_pressed("Attack"):
-	#     attack_buffer_timer = attack_buffer_time
 	
-	# === WALL DETECTION (if wall jump unlocked) ===
+	# Skip normal movement when taking damage
+	if is_taking_damage:
+		if not is_on_floor():
+			velocity += get_gravity() * delta
+		move_and_slide()
+		handle_animations(input_direction)
+		return
+	
+	# Wall detection
 	if ability_wall_jump:
 		check_wall_collision()
 	
-	# === DASHING STATE ===
+	# Dashing state
 	if is_dashing:
 		handle_dash(delta)
 		move_and_slide()
 		handle_animations(input_direction)
-		return  # Skip normal movement while dashing
+		return
 	
-	# === GRAVITY ===
+	# Gravity
 	if not is_on_floor():
-		# Wall sliding (if unlocked and on wall)
 		if ability_wall_jump and (is_on_wall_left or is_on_wall_right) and velocity.y > 0:
 			velocity.y = min(velocity.y, wall_slide_speed)
 		else:
-			# Normal gravity with optional fast fall
 			var gravity_multiplier = FALL_GRAVITY_MULTIPLIER if velocity.y > 0 else 1.0
 			
-			# Fast fall when holding down (MMZ3/Celeste style)
 			if Input.is_action_pressed("Down") and velocity.y > 0:
 				gravity_multiplier *= FAST_FALL_MULTIPLIER
 			
 			velocity += get_gravity() * delta * gravity_multiplier
 	
-# === GROUND DASH (if unlocked) - WITH BUFFER ===
+	# Ground dash (with buffer)
 	if ability_ground_dash and dash_buffer_timer > 0 and is_on_floor() and dash_cooldown_timer <= 0:
 		start_ground_dash(input_direction)
-		dash_buffer_timer = 0.0  # Consume buffer
+		dash_buffer_timer = 0.0
 	
-	# === WALL JUMP (if unlocked) - WITH BUFFER ===
+	# Wall jump (with buffer)
 	if ability_wall_jump and jump_buffer_timer > 0 and !is_on_floor():
 		if is_on_wall_left or is_on_wall_right or wall_jump_coyote_timer > 0:
 			perform_wall_jump()
-			jump_buffer_timer = 0.0  # Consume buffer
+			jump_buffer_timer = 0.0
 			move_and_slide()
 			handle_animations(input_direction)
 			return
 	
-	# === NORMAL JUMP (with buffer) OR DASH JUMP BUFFER ===
+	# Normal jump (with buffer) - CANCELS DASH
 	if jump_buffer_timer > 0:
-		# MMZ3 dash jump: Can jump shortly after dash ends
+		# Cancel dash immediately if jumping
+		if is_dashing:
+			is_dashing = false
+			dash_timer = 0.0
+		
+		# Dash jump buffer
 		if dash_jump_buffer_timer > 0:
 			velocity.y = JUMP_VELOCITY
 			dash_jump_buffer_timer = 0.0
-			jump_buffer_timer = 0.0  # Consume buffer
+			jump_buffer_timer = 0.0
 			airspin_played = false
 			
 			if abs(velocity.x) > SPEED_THRESHOLD:
 				velocity.y *= 1.1
-		# Normal jump (with coyote time)
+		# Normal jump with coyote time
 		elif is_on_floor() or !COYOTE_TIME.is_stopped():
 			velocity.y = JUMP_VELOCITY
 			COYOTE_TIME.stop()
-			jump_buffer_timer = 0.0  # Consume buffer
+			jump_buffer_timer = 0.0
 			airspin_played = false
 			
 			if abs(velocity.x) > SPEED_THRESHOLD:
 				velocity.y *= 1.1
 	
-	# === VARIABLE JUMP HEIGHT ===
+	# Variable jump height
 	if Input.is_action_just_released("Jump") and velocity.y < 0:
 		velocity.y *= JUMP_CUT_MULTIPLIER
 	
-	# === MOMENTUM SYSTEM ===
+	# Momentum system
+	print(current_speed)
+	
 	var current_speed = abs(velocity.x)
 	var is_in_flow_state = current_speed > SPEED_THRESHOLD
 	
 	if is_on_floor():
-		# GROUND MOVEMENT
 		if input_direction != 0:
 			velocity.x = move_toward(velocity.x, input_direction * MAX_SPEED, ACCELERATION * delta)
 		else:
 			velocity.x = move_toward(velocity.x, 0, GROUND_FRICTION * delta)
 	else:
-		# AIR MOVEMENT - Preserve high-speed momentum from dashing (MMZ3 tech)
 		var momentum_speed = abs(velocity.x)
 		var is_high_speed = momentum_speed > MAX_SPEED
 		
 		if input_direction != 0:
-			# Less air control when going fast (commitment)
 			var air_control_modifier = 1.0
 			if is_in_flow_state:
 				air_control_modifier = 0.75
 			elif is_high_speed:
 				air_control_modifier = 0.5
 			
-			# Don't fight against high momentum
 			if is_high_speed and sign(input_direction) == sign(velocity.x):
 				velocity.x = move_toward(velocity.x, input_direction * momentum_speed, AIR_ACCELERATION * air_control_modifier * delta)
 			else:
 				velocity.x = move_toward(velocity.x, input_direction * MAX_SPEED, AIR_ACCELERATION * air_control_modifier * delta)
 		else:
-			# Reduced air friction when at high speed (preserve momentum)
 			var friction = AIR_FRICTION if not is_high_speed else AIR_FRICTION * 0.5
 			velocity.x = move_toward(velocity.x, 0, friction * delta)
 	
-	# === COYOTE TIME ===
+	# Coyote time
 	if was_on_floor and !is_on_floor():
 		COYOTE_TIME.start()
 	if is_on_floor():
 		COYOTE_TIME.stop()
 	
-	# === WALL JUMP COYOTE TIME ===
+	# Wall jump coyote time
 	if was_on_wall and !is_on_wall_left and !is_on_wall_right:
 		wall_jump_coyote_timer = wall_jump_coyote_time
 	was_on_wall = is_on_wall_left or is_on_wall_right
@@ -277,8 +278,12 @@ func _physics_process(delta: float) -> void:
 
 # === WALL JUMP FUNCTIONS ===
 func check_wall_collision():
-	is_on_wall_left = test_move(transform, Vector2(-1, 0))
-	is_on_wall_right = test_move(transform, Vector2(1, 0))
+	if !is_on_floor():
+		is_on_wall_left = test_move(transform, Vector2(-1, 0))
+		is_on_wall_right = test_move(transform, Vector2(1, 0))
+	else:
+		is_on_wall_left = false
+		is_on_wall_right = false
 
 func perform_wall_jump():
 	var wall_direction = 0
@@ -304,8 +309,8 @@ func start_ground_dash(input_dir: float):
 	is_dashing = true
 	dash_timer = ground_dash_duration
 	dash_cooldown_timer = dash_cooldown
+	dash_ghost_timer = 0.0
 	
-	# MMZ3-STYLE: Add to current speed instead of setting it
 	var current_speed = velocity.x
 	var target_speed = dash_direction * ground_dash_speed
 	
@@ -318,17 +323,43 @@ func start_ground_dash(input_dir: float):
 
 func handle_dash(delta: float):
 	dash_timer -= delta
+	dash_ghost_timer -= delta
+	
+	# Spawn dash ghost
+	if dash_ghost_enabled and dash_ghost_timer <= 0:
+		spawn_dash_ghost()
+		dash_ghost_timer = dash_ghost_interval
 	
 	if dash_timer <= 0:
 		is_dashing = false
 		velocity.x *= dash_momentum_preservation
+		dash_jump_buffer_timer = dash_jump_buffer
 	else:
 		if abs(velocity.x) < abs(dash_direction * ground_dash_speed):
 			velocity.x = move_toward(velocity.x, dash_direction * ground_dash_speed, ACCELERATION * delta)
 
+func spawn_dash_ghost():
+	var ghost = Sprite2D.new()
+	
+	ghost.texture = animated_sprite.sprite_frames.get_frame_texture(animated_sprite.animation, animated_sprite.frame)
+	ghost.flip_h = animated_sprite.flip_h
+	ghost.global_position = animated_sprite.global_position
+	ghost.modulate = Color(9, 1, 1, 0.3)
+	
+	get_parent().add_child(ghost)
+	fade_and_delete_ghost(ghost)
+
+func fade_and_delete_ghost(ghost: Sprite2D):
+	var tween = create_tween()
+	tween.tween_property(ghost, "modulate:a", 0.1, dash_ghost_fade_duration)
+	tween.tween_callback(ghost.queue_free)
+
 # === ANIMATION HANDLER ===
 func handle_animations(input_direction: float):
-	# Wall sliding (highest priority)
+	if is_taking_damage:
+		animated_sprite.play(anim_hurt)
+		return
+	
 	if ability_wall_jump and (is_on_wall_left or is_on_wall_right) and !is_on_floor() and velocity.y > 0:
 		if is_on_wall_left:
 			animated_sprite.play(anim_wall_slide_left)
@@ -338,13 +369,11 @@ func handle_animations(input_direction: float):
 			animated_sprite.flip_h = true
 		return
 	
-	# Dashing
 	if is_dashing:
 		animated_sprite.play(anim_ground_dash)
 		animated_sprite.flip_h = dash_direction < 0
 		return
 	
-	# Air animations
 	if !is_on_floor():
 		if !airspin_played:
 			animated_sprite.play(anim_jump_start)
@@ -355,14 +384,12 @@ func handle_animations(input_direction: float):
 			if animated_sprite.frame == animated_sprite.sprite_frames.get_frame_count(anim_jump_fall) - 1:
 				animated_sprite.stop()
 		
-		# Flip sprite in air
 		if input_direction != 0:
 			animated_sprite.flip_h = input_direction < 0
 		elif abs(velocity.x) > 10:
 			animated_sprite.flip_h = velocity.x < 0
 		return
 	
-	# Ground animations
 	airspin_played = false
 	
 	if input_direction != 0:
@@ -374,7 +401,52 @@ func handle_animations(input_direction: float):
 		else:
 			animated_sprite.play(anim_run)
 
-# === DEATH AND DAMAGE ===
+# === DAMAGE SYSTEM ===
+func take_damage(amount: int, damage_source_position: Vector2 = global_position):
+	if is_invincible or is_dead:
+		return
+	
+	HEALTH -= amount
+	
+	if health_bar and health_bar.has_method("update_health"):
+		health_bar.update_health(HEALTH, 100)
+	
+	if HEALTH <= 0:
+		die()
+		return
+	# ... rest
+	
+	is_taking_damage = true
+	is_invincible = true
+	damage_timer = invincibility_duration
+	
+	var knockback_dir = sign(global_position.x - damage_source_position.x)
+	if knockback_dir == 0:
+		knockback_dir = -1 if animated_sprite.flip_h else 1
+	
+	velocity.x = knockback_dir * damage_knockback.x
+	velocity.y = damage_knockback.y
+	
+	is_dashing = false
+	dash_timer = 0.0
+	
+	start_invincibility_flash()
+
+func start_invincibility_flash():
+	var flash_count = int(invincibility_duration / (damage_flash_duration * 2))
+	
+	for i in range(flash_count):
+		if not is_invincible:
+			break
+		animated_sprite.modulate.a = 0.3
+		await get_tree().create_timer(damage_flash_duration).timeout
+		animated_sprite.modulate.a = 1.0
+		await get_tree().create_timer(damage_flash_duration).timeout
+	
+	animated_sprite.modulate.a = 1.0
+	is_invincible = false
+
+# === DEATH ===
 func die():
 	if is_dead:
 		return
@@ -382,26 +454,21 @@ func die():
 	is_dead = true
 	HEALTH = 0
 	
-	# Hitstop
 	Engine.time_scale = 0.0
 	await get_tree().create_timer(0.5, true, false, true).timeout
 	Engine.time_scale = 1.0
 	
-	# Play death sound (fixed - wait for it to finish)
 	var death_sound = AudioStreamPlayer.new()
 	death_sound.stream = load(death_sound_path)
-	get_tree().root.add_child(death_sound)  # Add to root so it persists
+	get_tree().root.add_child(death_sound)
 	death_sound.play()
 	
-	# Disable player control
 	set_physics_process(false)
 	animated_sprite.play(anim_death)
 	
-	# Wait for animation and sound
 	await animated_sprite.animation_finished
 	await get_tree().create_timer(1.0).timeout
 	
-	# Clean up sound before restart
 	death_sound.queue_free()
 	restart_scene()
 
@@ -410,15 +477,6 @@ func restart_scene():
 	await Fade.fade_out(1, Color.BLACK, "diamond").finished
 	get_tree().reload_current_scene()
 	Fade.fade_in(1, Color.BLACK, "diamond")
-
-func take_damage(amount):
-	HEALTH -= amount
-	health_bar.update_health(HEALTH, 100)
-	
-	if HEALTH <= 0:
-		die()
-		
-
 
 func _on_coyote_timer_timeout() -> void:
 	pass

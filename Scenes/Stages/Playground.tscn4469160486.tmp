@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=4 uid="uid://dnwra3q2b4j57"]
+[gd_scene load_steps=27 format=4 uid="uid://dnwra3q2b4j57"]
 
 [ext_resource type="PackedScene" uid="uid://dh8yln8lji7v2" path="res://Godot-Universal-Fade-f091514bba652880f81c5bc8809e0ee4498988ea/addons/UniversalFade/Fade.tscn" id="1_5lo5w"]
 [ext_resource type="Script" uid="uid://beu1i3fmdx5t4" path="res://Scripts/game_manager.gd" id="2_5lo5w"]
@@ -676,7 +676,7 @@ texture = ExtResource("10_dy60g")
 20:19/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_npy7o"]
-physics_layer_0/collision_layer = 7
+physics_layer_0/collision_layer = 4
 physics_layer_0/collision_mask = 0
 sources/0 = SubResource("TileSetAtlasSource_a4k3g")
 sources/2 = SubResource("TileSetAtlasSource_txthv")
@@ -692,9 +692,7 @@ func _ready() -> void:
 "
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_npy7o"]
-size = Vector2(38.48813, 15.835602)
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_e0d2h"]
+size = Vector2(39.5, 16)
 
 [node name="Node2D" type="Node2D"]
 metadata/_edit_vertical_guides_ = [-1395.0, -611.0]
@@ -747,7 +745,6 @@ script = ExtResource("2_druhk")
 [node name="Music" type="AudioStreamPlayer" parent="Music"]
 stream = ExtResource("5_txthv")
 volume_db = -25.28
-autoplay = true
 parameters/looping = true
 
 [node name="SFX" type="AudioStreamPlayer2D" parent="Music"]
@@ -757,23 +754,22 @@ bus = &"PlayerSFX"
 
 [node name="BlankBody" parent="." groups=["player"] instance=ExtResource("13_gqow2")]
 z_index = 3
-position = Vector2(1439, 274)
+position = Vector2(-483, 367)
 collision_mask = 2
 floor_constant_speed = true
 script = ExtResource("8_5x1w7")
-MAX_SPEED = 250.0
-ACCELERATION = 750.0
-GROUND_FRICTION = 2500.0
+MAX_SPEED = 300.0
+ACCELERATION = 1000.0
+GROUND_FRICTION = 1500.0
 AIR_ACCELERATION = 3200.0
 AIR_FRICTION = 200.0
 SPEED_THRESHOLD = 250.0
 JUMP_CUT_MULTIPLIER = 0.5
 FALL_GRAVITY_MULTIPLIER = 1.5
 FAST_FALL_MULTIPLIER = 2.0
-current_speed = null
 death_sound_path = "res://Sounds/dontwannadie.wav"
 invincibility_duration = 1.0
-damage_knockback = Vector2(150, -150)
+damage_knockback = Vector2(200, -150)
 damage_flash_duration = 0.1
 ability_wall_jump = true
 ability_ground_dash = true
@@ -784,17 +780,17 @@ ability_homing_attack = false
 ability_melee_attack = false
 ability_rail_grind = false
 wall_jump_force = Vector2(250, -350)
-wall_slide_speed = 500.0
+wall_slide_speed = 300.0
 wall_jump_coyote_time = 0.15
-ground_dash_speed = 250.0
-ground_dash_boost = 175.0
-dash_max_speed = 450.0
-ground_dash_duration = 0.2
+ground_dash_speed = 500.0
+ground_dash_boost = 200.0
+dash_max_speed = 600.0
+ground_dash_duration = 0.1
 dash_cooldown = 0.3
-dash_momentum_preservation = 1.25
+dash_momentum_preservation = 0.75
 dash_jump_buffer = 0.15
 dash_ghost_enabled = true
-dash_ghost_interval = 0.5
+dash_ghost_interval = 0.05
 dash_ghost_fade_duration = 0.3
 anim_idle = "idle"
 anim_run = "runningbasic"
@@ -815,7 +811,7 @@ anim_melee_1 = "idle"
 anim_melee_2 = "idle"
 anim_melee_3 = "idle"
 anim_rail_grind = "runningbasic"
-jump_buffer_time = 0.3
+jump_buffer_time = 0.15
 dash_buffer_time = 0.15
 attack_buffer_time = 0.15
 
@@ -861,19 +857,16 @@ collision_mask = 5
 script = ExtResource("9_5x1w7")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy"]
-position = Vector2(50.743713, 3.9055786)
-scale = Vector2(1.0006341, 1.1486039)
+position = Vector2(51.24997, 4)
 shape = SubResource("RectangleShape2D_npy7o")
 
 [node name="Area2D" type="Area2D" parent="Enemy"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy/Area2D"]
 position = Vector2(51.24997, 4)
-scale = Vector2(1, 1.1600049)
-shape = SubResource("CircleShape2D_e0d2h")
+shape = SubResource("RectangleShape2D_npy7o")
 
 [node name="Icon" type="Sprite2D" parent="Enemy"]
-visible = false
 position = Vector2(51.74997, 4)
 rotation = -1.5707964
 scale = Vector2(0.13, 0.32)

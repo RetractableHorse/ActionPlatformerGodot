@@ -5,6 +5,7 @@
 [node name="Health" type="ProgressBar"]
 offset_right = 4.0
 offset_bottom = 27.0
+value = 100.0
 fill_mode = 3
 show_percentage = false
 script = ExtResource("1_gh1s2")
