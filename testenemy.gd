@@ -48,15 +48,9 @@ func hop_towards_player():
 			parent.get_node("AnimatedSprite2D").flip_h = direction < 0
 			print("enemy sprite = flipped")
 
-func _on_body_entered(body: Node2D)-> void:
+func _on_body_entered(body):
 	if body.is_in_group("player") and body.has_method("take_damage"):
-		# Deal damage
-		body.take_damage(damage)
-		
-		print("Damaged!")
-		
-		# Apply knockback
-		var knockback_direction = (body.global_position - global_position).normalized()
-		body.velocity = knockback_direction * knockback_force
+		# Pass damage AND enemy position for knockback direction
+		body.take_damage(damage, global_position)
 		
 		print("get knocked back lol")
